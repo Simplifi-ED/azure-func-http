@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Context, HttpRequest } from '@azure/functions';
-import { HttpServer, INestApplication } from '@nestjs/common';
+import type { InvocationContext, HttpRequest } from '@azure/functions';
+import type { HttpServer, INestApplication } from '@nestjs/common';
 import { createHandlerAdapter } from './adapter/azure-adapter';
-import { AzureHttpRouter } from './router';
+import type { AzureHttpRouter } from './router';
 
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
 let handler: Function;
 
 export class AzureHttpAdapterStatic {
   handle(
     createApp: () => Promise<INestApplication>,
-    context: Context,
+    context: InvocationContext,
     req: HttpRequest
   ) {
     if (handler) {
@@ -26,6 +27,7 @@ export class AzureHttpAdapterStatic {
     const app = await createApp();
     const adapter = app.getHttpAdapter();
     if (this.hasGetTypeMethod(adapter) && adapter.getType() === 'azure-http') {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       return (adapter as any as AzureHttpRouter).handle.bind(adapter);
     }
     const instance = app.getHttpAdapter().getInstance();
@@ -35,6 +37,7 @@ export class AzureHttpAdapterStatic {
 
   private hasGetTypeMethod(
     adapter: HttpServer<any, any>
+  // biome-ignore lint/complexity/noBannedTypes: <explanation>
   ): adapter is HttpServer & { getType: Function } {
     return !!(adapter as any).getType;
   }
