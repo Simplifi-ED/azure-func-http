@@ -110,7 +110,7 @@ export default function (options: AzureOptions): Rule {
           getRootModulePath: () => options.rootModuleFileName
         }),
         forEach((file: FileEntry) => {
-          if (validateExistingRootFiles(host, file)) return null;
+          // if (validateExistingRootFiles(host, file)) return null;
           return file;
         })
       ]
