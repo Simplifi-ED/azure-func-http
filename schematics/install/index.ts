@@ -20,6 +20,7 @@ import {
   NodeDependencyType
 } from '@schematics/angular/utility/dependencies';
 import { Schema as AzureOptions } from './schema';
+import { log } from 'console';
 
 type UpdateJsonFn<T> = (obj: T) => T | void;
 
@@ -85,6 +86,7 @@ const applyProjectName = (projectName, host) => {
 const rootFiles = ['/.funcignore', '/host.json', '/local.settings.json'];
 
 const validateExistingRootFiles = (host: Tree, file: FileEntry) => {
+  console.log(`file exist ${file.path}`);
   return rootFiles.includes(file.path) && host.exists(file.path);
 };
 
@@ -110,7 +112,7 @@ export default function (options: AzureOptions): Rule {
           getRootModulePath: () => options.rootModuleFileName
         }),
         forEach((file: FileEntry) => {
-          // if (validateExistingRootFiles(host, file)) return null;
+          if (validateExistingRootFiles(host, file)) return null;
           return file;
         })
       ]
