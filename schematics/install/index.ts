@@ -82,12 +82,7 @@ const applyProjectName = (projectName, host) => {
   }
 };
 
-const rootFiles = [
-  '/.funcignore',
-  '/host.json',
-  '/local.settings.json',
-  '/proxies.json'
-];
+const rootFiles = ['/.funcignore', '/host.json', '/local.settings.json'];
 
 const validateExistingRootFiles = (host: Tree, file: FileEntry) => {
   return rootFiles.includes(file.path) && host.exists(file.path);
