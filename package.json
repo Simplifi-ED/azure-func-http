@@ -1,6 +1,6 @@
 {
   "name": "@edeneuve/azure-func-http",
-  "version": "0.10.14",
+  "version": "0.10.15",
   "description": "Nest - modern, fast, powerful node.js web framework (@azure-func-http)",
   "author": "Etienne Deneuve",
   "license": "MIT",
@@ -22,8 +22,8 @@
   },
   "peerDependencies": {
     "@azure/functions": "^3.0.0 || ^4.0.0",
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0",
+    "@nestjs/core": "^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
