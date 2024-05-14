@@ -1,6 +1,7 @@
 import { strings } from '@angular-devkit/core';
 import { parse as parseJson } from 'jsonc-parser';
 import {
+  Action,
   apply,
   chain,
   FileEntry,
@@ -17,10 +18,10 @@ import {
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import {
   addPackageJsonDependency,
-  NodeDependencyType
+  NodeDependencyType,
+  removePackageJsonDependency
 } from '@schematics/angular/utility/dependencies';
 import { Schema as AzureOptions } from './schema';
-import { log } from 'console';
 
 type UpdateJsonFn<T> = (obj: T) => T | void;
 
@@ -29,8 +30,34 @@ function addDependenciesAndScripts(): Rule {
     addPackageJsonDependency(host, {
       type: NodeDependencyType.Default,
       name: '@azure/functions',
-      version: '^4.4.0'
+      version: '^4.4.0',
+      overwrite: true
     });
+    addPackageJsonDependency(host, {
+      type: NodeDependencyType.Dev,
+      name: 'azure-functions-core-tools',
+      version: '^4.x',
+      overwrite: true
+    });
+    addPackageJsonDependency(host, {
+      type: NodeDependencyType.Dev,
+      name: '@types/node',
+      version: '18.x',
+      overwrite: true
+    });
+    addPackageJsonDependency(host, {
+      type: NodeDependencyType.Dev,
+      name: 'typescript',
+      version: '^4.0.0',
+      overwrite: true
+    });
+    addPackageJsonDependency(host, {
+      type: NodeDependencyType.Dev,
+      name: 'rimraf',
+      version: '^5.0.0',
+      overwrite: true
+    });
+    removePackageJsonDependency(host, '@nestjs/azure-func-http');
     const pkgPath = '/package.json';
     const buffer = host.read(pkgPath);
     if (buffer === null) {
@@ -42,6 +69,14 @@ function addDependenciesAndScripts(): Rule {
 
     host.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
     return host;
+  };
+}
+
+function removeProxiesFiles(): Rule {
+  return (host: Tree) => {
+    if (host.exists('/proxies.json')) {
+      host.delete('/proxies.json');
+    }
   };
 }
 
@@ -86,7 +121,6 @@ const applyProjectName = (projectName, host) => {
 const rootFiles = ['/.funcignore', '/host.json', '/local.settings.json'];
 
 const validateExistingRootFiles = (host: Tree, file: FileEntry) => {
-  console.log(`file exist ${file.path}`);
   return rootFiles.includes(file.path) && host.exists(file.path);
 };
 
@@ -124,6 +158,7 @@ export default function (options: AzureOptions): Rule {
           ? applyProjectName(options.project, host)
           : noop()(tree, context),
       addDependenciesAndScripts(),
+      removeProxiesFiles(),
       mergeWith(rootSource)
     ]);
   };
