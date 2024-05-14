@@ -28,7 +28,7 @@ function addDependenciesAndScripts(): Rule {
     addPackageJsonDependency(host, {
       type: NodeDependencyType.Default,
       name: '@azure/functions',
-      version: '^1.0.3'
+      version: '^4.4.0'
     });
     const pkgPath = '/package.json';
     const buffer = host.read(pkgPath);
