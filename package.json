@@ -1,6 +1,6 @@
 {
   "name": "@edeneuve/azure-func-http",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Nest - modern, fast, powerful node.js web framework (@azure-func-http)",
   "author": "Etienne Deneuve",
   "license": "MIT",
@@ -27,8 +27,8 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "@angular-devkit/schematics": "^17.3.7",
-    "@azure/functions": "3.5.1",
+    "@angular-devkit/schematics": "^18.0.0-rc.2",
+    "@azure/functions": "4.4.0",
     "@commitlint/cli": "19.3.0",
     "@commitlint/config-angular": "19.3.0",
     "@nestjs/common": "10.2.7",
