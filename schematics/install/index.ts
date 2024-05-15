@@ -1,7 +1,6 @@
 import { strings } from '@angular-devkit/core';
 import { parse as parseJson } from 'jsonc-parser';
 import {
-  Action,
   apply,
   chain,
   FileEntry,
@@ -25,39 +24,61 @@ import { Schema as AzureOptions } from './schema';
 
 type UpdateJsonFn<T> = (obj: T) => T | void;
 
+const addPackagesList = [
+  {
+    type: NodeDependencyType.Default,
+    name: '@azure/functions',
+    version: '^4.4.0',
+    overwrite: true
+  },
+  {
+    type: NodeDependencyType.Dev,
+    name: 'azure-functions-core-tools',
+    version: '^4.x',
+    overwrite: true
+  },
+  {
+    type: NodeDependencyType.Dev,
+    name: '@types/node',
+    version: '18.x',
+    overwrite: true
+  },
+  {
+    type: NodeDependencyType.Dev,
+    name: 'typescript',
+    version: '^4.0.0',
+    overwrite: true
+  },
+  {
+    type: NodeDependencyType.Dev,
+    name: 'rimraf',
+    version: '^5.0.0',
+    overwrite: true
+  }
+];
+const removePackageList = ['@azure/functions', '@nestjs/azure-func-http'];
+
+function migrateFromNestJsAzureFuncHttp(): Rule {
+  return (host: Tree) => {
+    const oldFile = ['./main/index.ts', './src/main.azure.ts'];
+    oldFile.forEach((file) => {
+      if (host.exists(file)) {
+        host.delete(file);
+      }
+    });
+
+    return host;
+  };
+}
+
 function addDependenciesAndScripts(): Rule {
   return (host: Tree) => {
-    addPackageJsonDependency(host, {
-      type: NodeDependencyType.Default,
-      name: '@azure/functions',
-      version: '^4.4.0',
-      overwrite: true
-    });
-    addPackageJsonDependency(host, {
-      type: NodeDependencyType.Dev,
-      name: 'azure-functions-core-tools',
-      version: '^4.x',
-      overwrite: true
-    });
-    addPackageJsonDependency(host, {
-      type: NodeDependencyType.Dev,
-      name: '@types/node',
-      version: '18.x',
-      overwrite: true
-    });
-    addPackageJsonDependency(host, {
-      type: NodeDependencyType.Dev,
-      name: 'typescript',
-      version: '^4.0.0',
-      overwrite: true
-    });
-    addPackageJsonDependency(host, {
-      type: NodeDependencyType.Dev,
-      name: 'rimraf',
-      version: '^5.0.0',
-      overwrite: true
-    });
-    removePackageJsonDependency(host, '@nestjs/azure-func-http');
+    removePackageList.forEach((delPackage) =>
+      removePackageJsonDependency(host, delPackage)
+    );
+    addPackagesList.forEach((iPackage) =>
+      addPackageJsonDependency(host, iPackage)
+    );
     const pkgPath = '/package.json';
     const buffer = host.read(pkgPath);
     if (buffer === null) {
@@ -66,6 +87,7 @@ function addDependenciesAndScripts(): Rule {
 
     const pkg = JSON.parse(buffer.toString());
     pkg.scripts['start:azure'] = 'npm run build && func host start';
+    pkg['main'] = './dist/main/index.js';
 
     host.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
     return host;
@@ -96,7 +118,7 @@ function updateJsonFile<T>(
 }
 const applyProjectName = (projectName, host) => {
   if (projectName) {
-    let nestCliFileExists = host.exists('nest-cli.json');
+    const nestCliFileExists = host.exists('nest-cli.json');
 
     if (nestCliFileExists) {
       updateJsonFile(
@@ -136,7 +158,7 @@ export default function (options: AzureOptions): Rule {
       [
         template({
           ...strings,
-          ...(options as AzureOptions),
+          ...options,
           rootDir: options.rootDir,
           sourceRoot: defaultSourceRoot,
           getRootDirectory: () => options.rootDir,
@@ -157,6 +179,7 @@ export default function (options: AzureOptions): Rule {
         options.project
           ? applyProjectName(options.project, host)
           : noop()(tree, context),
+      migrateFromNestJsAzureFuncHttp(),
       addDependenciesAndScripts(),
       removeProxiesFiles(),
       mergeWith(rootSource)
