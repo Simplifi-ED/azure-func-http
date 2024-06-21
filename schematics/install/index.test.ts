@@ -163,7 +163,7 @@ describe('Schematic Tests Nest Add', () => {
         '/src/main.ts',
         '/test/app.e2e-spec.ts',
         '/test/jest-e2e.json',
-        '/apps/edeneuve-azure-func-http/tsconfig.app.json',
+        '/apps/Simplifi-ED-azure-func-http/tsconfig.app.json',
         `/apps/${projectName}/tsconfig.app.json`,
         `/apps/${projectName}/src/main.ts`,
         `/apps/${projectName}/src/${projectName}.controller.spec.ts`,
