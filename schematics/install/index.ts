@@ -66,7 +66,6 @@ function migrateFromNestJsAzureFuncHttp(): Rule {
         host.delete(file);
       }
     });
-
     return host;
   };
 }
@@ -116,6 +115,7 @@ function updateJsonFile<T>(
   }
   return host;
 }
+
 const applyProjectName = (projectName, host) => {
   if (projectName) {
     const nestCliFileExists = host.exists('nest-cli.json');
